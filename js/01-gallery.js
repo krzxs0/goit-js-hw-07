@@ -2,30 +2,33 @@
 import { galleryItems } from './gallery-items.js';
 
 // Change code below this line
-let ul = document.getElementsByClassName('gallery')[0]
+document.addEventListener('DOMContentLoaded', () => {
+  const galleryList = document.querySelector('.gallery');
 
-let i = 0;
+  const createGalleryItem = ({ preview, original, description }) => `
+    <li class="gallery__item">
+      <a class="gallery__link" href="${original}">
+        <img class="gallery__image" src="${preview}" data-source="${original}" alt="${description}" />
+      </a>
+    </li>
+  `;
 
-let boxes = []
+  const galleryMarkup = galleryItems.map(createGalleryItem).join('');
+  galleryList.innerHTML = galleryMarkup;
 
-galleryItems.forEach(element => {
-    let li = document.createElement("li")
-    let image = document.createElement('img')
-    image.src = element.preview
-    const instance = basicLightbox.create(`
-        <div class="modal">
-            <img src='${element.original}'>
-        </div>
-    `)
+  const lightbox = basicLightbox.create(`
+    <img class="gallery__image" src="" alt="" />
+  `);
 
-    image.onclick = () => {
-        instance.show()
+  galleryList.addEventListener('click', event => {
+    event.preventDefault();
+    const targetImage = event.target.closest('.gallery__image');
+    if (targetImage) {
+      const { source, alt } = targetImage.dataset;
+      const image = lightbox.element().querySelector('.gallery__image');
+      image.src = source;
+      image.alt = alt;
+      lightbox.show();
     }
-    li.appendChild(image)
-    li.id = i
-
-    boxes.push(instance)
-    
-    i++ 
-    ul.appendChild(li)
+  });
 });
